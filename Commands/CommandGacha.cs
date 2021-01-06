@@ -138,7 +138,8 @@ namespace AellaDiscordBot.Bots.Commands
                 await ctx.TriggerTypingAsync().ConfigureAwait(false);
                 await msg.DeleteAsync().ConfigureAwait(false);
 
-                Page[] pages = new Page[5];
+                Page[] pages = new Page[6];
+                List<Card> cardsObtained = new List<Card>();
 
                 //Pull 5 cards
                 for (int i = 0; i < 5; i++)
@@ -183,14 +184,24 @@ namespace AellaDiscordBot.Bots.Commands
                         Color = color
                     };
 
+                    cardsObtained.Add(card);
+
                     DBConnector.AddCard(ctx.User.Id.ToString(), card.Id);
 
-                    pages[i] = new Page("", cardEmbed);
+                    pages[i+1] = new Page("", cardEmbed);
                 }
+
+                var summeryEmbed = new DiscordEmbedBuilder
+                {
+                    Title = $"Cards obtained",
+                    Description = $"**{ctx.User.Username}**, you pulled: \n{cardsObtained.Select(c => $"{DiscordEmoji.FromName(ctx.Client, $":{c.Rarity}:")} {c.Name}\n")}"
+                };
 
                 PaginationEmojis paginationEmojis = GetPaginationEmojis(ctx.Client);
 
-                await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pages, paginationEmojis, PaginationBehaviour.WrapAround, PaginationDeletion.DeleteEmojis, TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+                await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pages, paginationEmojis, PaginationBehaviour.WrapAround, PaginationDeletion.DeleteMessage, TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+
+                await ctx.Channel.SendMessageAsync("", false, summeryEmbed).ConfigureAwait(false);
             }
             else
             {
