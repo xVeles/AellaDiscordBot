@@ -90,7 +90,7 @@ namespace AellaDiscordBot.Bots.Commands
                 var cardEmbed = new DiscordEmbedBuilder
                 {
                     Title = $"{DiscordEmoji.FromName(ctx.Client, $":{card.Rarity}:")} {card.Name}",
-                    Description = $"**{ctx.User.Username}**, you pulled a {DiscordEmoji.FromName(ctx.Client, $":{card.Rarity.ToString()}:")} {hqIcons}",
+                    Description = $"**{ctx.User.Username}**, you pulled a {DiscordEmoji.FromName(ctx.Client, $":{card.Rarity}:")} {hqIcons}",
                     ImageUrl = $"{card.Filename}",
                     Color = color
                 };
@@ -105,7 +105,7 @@ namespace AellaDiscordBot.Bots.Commands
             }
         }
 
-        [Command("gacha5"), Description("Pull 5 times from the Gacha pool by reacting to the present! (5000 :cookie: req, 1 bonus pull inculded)")]
+        [Command("gacha5"), Description("Pull 5 times from the Gacha pool by reacting to the present! (4000 :cookie: req, 1 bonus pull inculded)")]
         public async Task Gacha5(CommandContext ctx)
         {
             if (DBConnector.RemoveCurrency(ctx.User.Id.ToString(), 4000))
@@ -194,8 +194,10 @@ namespace AellaDiscordBot.Bots.Commands
                 var summeryEmbed = new DiscordEmbedBuilder
                 {
                     Title = $"Cards obtained",
-                    Description = $"**{ctx.User.Username}**, you pulled: \n{cardsObtained.Select(c => $"{DiscordEmoji.FromName(ctx.Client, $":{c.Rarity}:")} {c.Name}\n")}"
+                    Description = $"**{ctx.User.Username}**, you pulled: \n{string.Join("\n", cardsObtained.Select(c =>  $"{DiscordEmoji.FromName(ctx.Client, $":{c.Rarity}:")} {c.Name}").ToList())}"
                 };
+
+                pages[0] = new Page("", summeryEmbed);
 
                 PaginationEmojis paginationEmojis = GetPaginationEmojis(ctx.Client);
 
@@ -209,9 +211,10 @@ namespace AellaDiscordBot.Bots.Commands
             }
         }
 
-        [Command("collections"), Description("Shows what cards you have collected")]
-        public async Task Collection(CommandContext ctx, DiscordUser user = null)
+        [Command("mycards"), Description("Shows what cards you have collected")]
+        public async Task MyCards(CommandContext ctx, DiscordUser user = null)
         {
+
             if (user == null) user = ctx.User;
 
             List<Card> cardsCollected = DBConnector.GetUserCards(user.Id.ToString());
@@ -236,11 +239,11 @@ namespace AellaDiscordBot.Bots.Commands
 
             List<DiscordEmbedBuilder> embeds = new List<DiscordEmbedBuilder>();
 
-            embeds.AddRange(GeneratePageText(uqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":uq:")} UQ Cards ({uqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.UQ).ToList().Count})**", embed));
-            embeds.AddRange(GeneratePageText(hhqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":hhq:")} HHQ Cards ({hhqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.HHQ).ToList().Count})**", embed));
-            embeds.AddRange(GeneratePageText(hqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":hq:")} HQ Cards ({hqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.HQ).ToList().Count})**", embed));
-            embeds.AddRange(GeneratePageText(nqpCards, $"**{DiscordEmoji.FromName(ctx.Client, ":nqp:")} NQP Cards ({nqpCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.NQP).ToList().Count})**", embed));
-            embeds.AddRange(GeneratePageText(nqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":nq:")} NQ Cards ({nqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.NQ).ToList().Count})**", embed));
+            embeds.AddRange(GeneratePageText(uqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":UQ:")} UQ Cards ({uqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.UQ).ToList().Count})**", embed));
+            embeds.AddRange(GeneratePageText(hhqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":HHQ:")} HHQ Cards ({hhqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.HHQ).ToList().Count})**", embed));
+            embeds.AddRange(GeneratePageText(hqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":HQ:")} HQ Cards ({hqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.HQ).ToList().Count})**", embed));
+            embeds.AddRange(GeneratePageText(nqpCards, $"**{DiscordEmoji.FromName(ctx.Client, ":NQP:")} NQP Cards ({nqpCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.NQP).ToList().Count})**", embed));
+            embeds.AddRange(GeneratePageText(nqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":NQ:")} NQ Cards ({nqCards.Count}/{GachaTable.Instance.Cards.Where(c => c.Rarity == Rarity.NQ).ToList().Count})**", embed));
 
             Page[] pages = new Page[embeds.Count];
 
@@ -277,11 +280,11 @@ namespace AellaDiscordBot.Bots.Commands
 
                 List<DiscordEmbedBuilder> embeds = new List<DiscordEmbedBuilder>();
 
-                embeds.AddRange(GeneratePageText(uqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":uq:")} UQ Cards ({uqCards.Count})**", embed));
-                embeds.AddRange(GeneratePageText(hhqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":hhq:")} HHQ Cards ({hhqCards.Count})**", embed));
-                embeds.AddRange(GeneratePageText(hqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":hq:")} HQ Cards ({hqCards.Count})**", embed));
-                embeds.AddRange(GeneratePageText(nqpCards, $"**{DiscordEmoji.FromName(ctx.Client, ":nqp:")} NQP Cards ({nqpCards.Count})**", embed));
-                embeds.AddRange(GeneratePageText(nqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":nq:")} NQ Cards ({nqCards.Count})**", embed));
+                embeds.AddRange(GeneratePageText(uqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":UQ:")} UQ Cards ({uqCards.Count})**", embed));
+                embeds.AddRange(GeneratePageText(hhqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":HHQ:")} HHQ Cards ({hhqCards.Count})**", embed));
+                embeds.AddRange(GeneratePageText(hqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":HQ:")} HQ Cards ({hqCards.Count})**", embed));
+                embeds.AddRange(GeneratePageText(nqpCards, $"**{DiscordEmoji.FromName(ctx.Client, ":NQP:")} NQP Cards ({nqpCards.Count})**", embed));
+                embeds.AddRange(GeneratePageText(nqCards, $"**{DiscordEmoji.FromName(ctx.Client, ":NQ:")} NQ Cards ({nqCards.Count})**", embed));
 
                 PaginationEmojis paginationEmojis = GetPaginationEmojis(ctx.Client);
 
